@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-add formthisinh hide">
+      <div class="form-add">
+        <span>Số báo danh</span>
+
+        <input type="number" name="" id="sbdthisinh" />
+        <span>Họ tên</span>
+        <input type="text" name="" id="namethisinh" />
+        <span>Hình Ảnh</span>
+        <div class="xulyhinhanh">
+          <div class="previewhinhanh">
+            <div class="card">
+              <img
+                class="logo"
+                src="https://upload.wikimedia.org/wikipedia/commons/0/08/Logo-miss-luxembourg-since-1927.png"
+                alt=""
+              />
+              <img class="miss" src="" alt="" />
+              <div class="effect"></div>
+              <div class="info">
+                <span class="sbd">SBD XXX</span>
+                <span class="name">HỌ VÀ TÊN</span>
+                <button class="btn-vote">Bình chọn</button>
+              </div>
+            </div>
+          </div>
+
+          <input
+            class="rangeanh"
+            type="range"
+            orient="vertical"
+            min="-100"
+            max="100"
+            value="0"
+            id="rangedoc"
+          />
+          <button class="chonanh">Chọn ảnh</button>
+          <input
+            type="file"
+            name=""
+            id="hinhanhthisinh"
+            accept="image/jpg, image/png, image/gif"
+            hidden
+          />
+        </div>
+
+        <input
+          class="rangeanh"
+          type="range"
+          min="-100"
+          max="100"
+          value="0"
+          id="rangengang"
+        />
+
+        <div class="action">
+          <button class="btn-cancel">Huỷ</button>
+          <button class="btn-add">Thêm</button>
+        </div>
+      </div>
+    </div>
+    <div class="background-add formbinhchon hide">
+      <div class="form-add">
+        <span>Mã truy cập</span>
+        <input
+          type="text"
+          name=""
+          placeholder="Nhập mã truy cập, 5 ký tự bao gồm chữ hoặc số"
+          id="idbinhchon"
+          maxlength="5"
+        />
+        <span>Họ tên</span>
+        <input type="text" name="" id="namebinhchon" />
+        <div class="action">
+          <button class="btn-cancel">Huỷ</button>
+          <button class="btn-add">Thêm</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="background-edit formeditbinhchon hide">
+      <div class="form-edit">
+        <span>Mã truy cập</span>
+        <input type="text" name="" id="ideditbinhchon" />
+        <span>Họ tên</span>
+        <input type="text" name="" id="nameeditbinhchon" />
+        <div class="action">
+          <button class="btn-delete">Xóa</button>
+          <button class="btn-edit">Sửa</button>
+        </div>
+      </div>
+    </div>
+
+    <header>
+      <div class="menu-icon">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          x="0px"
+          y="0px"
+          width="100"
+          height="100"
+          viewBox="0 0 50 50"
+        >
+          <path
+            d="M 0 7.5 L 0 12.5 L 50 12.5 L 50 7.5 Z M 0 22.5 L 0 27.5 L 50 27.5 L 50 22.5 Z M 0 37.5 L 0 42.5 L 50 42.5 L 50 37.5 Z"
+          ></path>
+        </svg>
+      </div>
+    </header>
+    <div class="menu hidden-menu">
+      <div id-index="0" class="menu-item">DS thí sinh</div>
+      <div id-index="1" class="menu-item">DS bình chọn</div>
+      <div id-index="2" class="menu-item">Lịch sử bình chọn</div>
+    </div>
+    <div class="dashboard">
+      <div class="content">
+        <div class="content-item visible">
+          <div class="title">
+            <span>Danh sách thí sinh</span>
+            <button class="btn-add" id="themThiSinh">Thêm</button>
+          </div>
+          <table
+            class="table table-bordered"
+            id="dataTableThiSinh"
+            width="100%"
+            cellspacing="0"
+          >
+            <thead>
+              <tr>
+                <th>SBD</th>
+                <th>Họ Tên</th>
+                <th>Số phiếu</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>SBD</th>
+                <th>Họ Tên</th>
+                <th>Số phiếu</th>
+                <th>Edit</th>
+              </tr>
+            </tfoot>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="content-item">
+          <div class="title">
+            <span>Danh sách tham gia bình chọn</span>
+            <button class="btn-add" id="themBinhChon">Thêm</button>
+          </div>
+          <table
+            class="table table-bordered"
+            id="dataTableBinhChon"
+            width="100%"
+            cellspacing="0"
+          >
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Họ Tên</th>
+                <th>Đã Vote</th>
+                <th>Edit</th>
+              </tr>
+            </thead>
+            <tfoot>
+              <tr>
+                <th>ID</th>
+                <th>Họ Tên</th>
+                <th>Đã Vote</th>
+                <th>Edit</th>
+              </tr>
+            </tfoot>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="content-item">
+          <div class="title">
+            <span>Lịch sử bình chọn</span>
+            <label for="due-date">Due date</label>
+            <input type="date" id="dateFilter" name="due-date" />
+          </div>
+          <table
+            class="table table-bordered"
+            id="dataTableVoted"
+            width="100%"
+            cellspacing="0"
+          >
+            <thead>
+              <tr>
+                <th>Thời gian</th>
+                <th>Nội dung</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="pagination"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <!-- <script>
+    if (
+      /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      window.matchMedia("(max-width: 768px)").matches
+    ) {
+      alert(
+        "Trang web này chỉ dành cho máy tính. Vui lòng truy cập bằng máy tính để bàn hoặc laptop."
+      );
+      window.location.href = "https://example.com/desktop-only";
+    }
+  </script> -->
+
+  <script src="script.js"></script>
+  <script type="module" src="handleBinhChon.js"></script>
+
+  <script type="module" src="handleThiSinh.js"></script>
+  <script type="module" src="handleVoted.js"></script>
+</html>
