@@ -34,12 +34,13 @@ body {
 header {
   width: 100%;
   height: 100px;
-  background-color: antiquewhite;
+  background-color: #1b2433;
 }
 .menu-icon {
   position: absolute;
-  right: 1em;
+  right: 2em;
   cursor: pointer;
+  fill: #eee;
   svg {
     width: 2.3em;
   }
@@ -51,12 +52,12 @@ header {
 }
 .menu {
   display: flex;
-  width: 10em;
+  width: 13rem;
   height: 100vh;
   flex-direction: column;
   position: absolute;
-  right: 0;
-  background-color: aquamarine;
+  right: -1em;
+  background-color: #1b2433;
   transition: all 0.3s;
   .menu-item {
     width: 100%;
@@ -64,9 +65,11 @@ header {
     padding: 2em 1em;
     text-align: left;
     line-height: 0;
+    color: #afb4ba;
+    cursor: pointer;
   }
   .menu-item:hover {
-    background-color: black;
+    background-color: #333948;
   }
 }
 
@@ -77,6 +80,8 @@ header {
   box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
   padding: 1em;
   width: 100%;
+
+  border-radius: 15px;
 }
 .content-item {
   display: none;
