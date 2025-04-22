@@ -77,7 +77,7 @@ addBinhChon.addEventListener("click", () => {
   toggleHideElement(formAddBinhChon);
 });
 
-function addDataBinhChon(id, name, index) {
+function addDataBinhChon(id, name, index, sophieu) {
   const tRow = document.createElement("tr");
   // <tr></tr>
 
@@ -90,7 +90,7 @@ function addDataBinhChon(id, name, index) {
   // <td>Tên Bình Chọn</td>
 
   const tData3 = document.createElement("td");
-  tData3.innerHTML = 0;
+  tData3.innerHTML = sophieu;
   // <td>0</td>
 
   const tData4 = document.createElement("td");
@@ -205,20 +205,60 @@ function renderEditSVG() {
 // }
 
 function LoadData() {
-  renderDataBinhChon();
+  processDataBinhChon();
 }
 
-function renderDataBinhChon() {
-  const dbRef = ref(db);
-  get(child(dbRef, "/dsbinhchon")).then((resposes) => {
-    resposes.forEach((respose) => {
-      if (respose.val().display == true) {
+// function renderDataBinhChon() {
+//   const dbRef = ref(db);
+//   get(child(dbRef, "/dsbinhchon")).then((resposes) => {
+//     resposes.forEach((respose) => {
+//       if (respose.val().display == true) {
+//         dataBinhChon.appendChild(
+//           addDataBinhChon(respose.val().id, respose.val().name, respose.key)
+//         );
+//       }
+//     });
+//   });
+// }
+
+// Data Fetching
+async function fetchBinhChon() {
+  const snapshot = await get(ref(db, "/dsbinhchon"));
+  if (!snapshot.exists()) return [];
+  return Object.values(snapshot.val()).map((data) => ({ ...data, sophieu: 0 }));
+}
+
+async function fetchVotes() {
+  const snapshot = await get(ref(db, "/chitietvotes"));
+  return snapshot.exists() ? snapshot.val() : {};
+}
+
+// Vote Count and Ranking
+async function processDataBinhChon() {
+  try {
+    const [binhChonList, voteData] = await Promise.all([
+      fetchBinhChon(),
+      fetchVotes(),
+    ]);
+
+    binhChonList.forEach((ts, index) => {
+      Object.values(voteData).forEach((vote) => {
+        if (vote.idbinhchon == index) {
+          ts.sophieu++;
+          console.log("done!");
+        }
+      });
+    });
+    binhChonList.forEach((ts, index) => {
+      if (ts.display == true) {
         dataBinhChon.appendChild(
-          addDataBinhChon(respose.val().id, respose.val().name, respose.key)
+          addDataBinhChon(ts.id, ts.name, index, ts.sophieu)
         );
       }
     });
-  });
+  } catch (err) {
+    console.error("Lỗi xử lý dữ liệu:", err);
+  }
 }
 
 window.addEventListener("load", LoadData);
