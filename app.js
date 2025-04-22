@@ -106,13 +106,15 @@ async function processData() {
 
     thiSinhList.forEach((ts) => {
       Object.values(voteData).forEach((vote) => {
-        if (vote.idmiss === ts.id) ts.sophieu++;
+        if (vote.idmiss == ts.id) ts.sophieu++;
       });
     });
 
     thiSinhList.sort((a, b) => b.sophieu - a.sophieu);
     const top3 = thiSinhList.slice(0, 3);
-    top3.forEach((ts, idx) => ranking.appendChild(createCard(ts, idx + 1)));
+    top3.forEach((ts, idx) => {
+      ranking.appendChild(createCard(ts, idx + 1));
+    });
   } catch (err) {
     console.error("Lỗi xử lý dữ liệu:", err);
   }
@@ -136,8 +138,7 @@ function createCard({ id, sbd, name }, rank = null) {
 
   const imageLogo = new Image();
   imageLogo.className = "logo";
-  imageLogo.src =
-    "https://upload.wikimedia.org/wikipedia/commons/0/08/Logo-miss-luxembourg-since-1927.png";
+  imageLogo.src = "img/logo/logo1.png";
 
   const imageMiss = new Image();
   imageMiss.className = "miss";
