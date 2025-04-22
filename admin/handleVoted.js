@@ -25,258 +25,236 @@ import {
 
 const db = getDatabase();
 
-function toggleHideElement(element) {
-  element.classList.toggle("hide");
-}
+const tableVoted = document.getElementById("dataTableVoted");
+const dataVoted = tableVoted.getElementsByTagName("tbody")[0];
 
-const themThiSinh = document.getElementById("themThiSinh");
-const formAddThiSinh = document.querySelector(".formthisinh");
-const huyAddThiSinh = formAddThiSinh.querySelector(".btn-cancel");
-const sbdthisinh = document.getElementById("sbdthisinh");
-const dataThiSinh = document.querySelector("#dataTableThiSinh tbody");
-const namethisinh = document.getElementById("namethisinh");
+async function GetNameThiSinh(idThiSinh) {
+  try {
+    const dataRef = ref(db, "/dsthisinh");
+    const snapshot = await get(dataRef);
 
-const btnThemThiSinh = formAddThiSinh.querySelector(".btn-add");
-formAddThiSinh.addEventListener("click", (e) => {
-  if (e.target == e.currentTarget) toggleHideElement(formAddThiSinh);
-});
-huyAddThiSinh.addEventListener("click", (e) => {
-  toggleHideElement(formAddThiSinh);
-});
-themThiSinh.addEventListener("click", (e) => {
-  toggleHideElement(formAddThiSinh);
-});
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const foundThiSinh = Object.values(data).find(
+        (thiSinh) => thiSinh.id === idThiSinh
+      );
 
-// <------------------- Handle Hình Ảnh ------------------>
-
-const inputUpLoad = document.getElementById("hinhanhthisinh");
-document.querySelector(".chonanh").addEventListener("click", () => {
-  inputUpLoad.click();
-});
-
-const rangeDoc = document.getElementById("rangedoc");
-const rangeNgang = document.getElementById("rangengang");
-const imageMiss = document.getElementsByClassName("miss")[0];
-
-rangeNgang.oninput = function () {
-  imageMiss.style.transform = `translate(${rangeNgang.value}px,${rangeDoc.value}px)`;
-};
-rangeDoc.oninput = function () {
-  imageMiss.style.transform = `translate(${rangeNgang.value}px,${rangeDoc.value}px)`;
-};
-
-inputUpLoad.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    let url = URL.createObjectURL(file);
-    imageMiss.src = url;
-
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      imageMiss.setAttribute("src", this.result);
-    });
-    imageMiss.style.display = "block";
-
-    reader.readAsDataURL(file);
+      if (foundThiSinh) {
+        return foundThiSinh.name;
+      } else {
+        return "<Không xác định1>";
+      }
+    } else {
+      return "<Không xác định2>";
+    }
+  } catch (error) {
+    console.error("Lỗi khi lấy tên thí sinh:", error);
+    return "<Lỗi khi truy xuất>";
   }
-});
-
-function renderEditSVG() {
-  return `<svg
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 576 512"
->
-  
-  <path
-    d="M402.6 83.2l90.2 90.2c3.8 3.8 3.8 10 0 13.8L274.4 405.6l-92.8 10.3c-12.4 1.4-22.9-9.1-21.5-21.5l10.3-92.8L388.8 83.2c3.8-3.8 10-3.8 13.8 0zm162-22.9l-48.8-48.8c-15.2-15.2-39.9-15.2-55.2 0l-35.4 35.4c-3.8 3.8-3.8 10 0 13.8l90.2 90.2c3.8 3.8 10 3.8 13.8 0l35.4-35.4c15.2-15.3 15.2-40 0-55.2zM384 346.2V448H64V128h229.8c3.2 0 6.2-1.3 8.5-3.5l40-40c7.6-7.6 2.2-20.5-8.5-20.5H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V306.2c0-10.7-12.9-16-20.5-8.5l-40 40c-2.2 2.3-3.5 5.3-3.5 8.5z"
-  />
-</svg>`;
 }
 
-btnThemThiSinh.addEventListener("click", () => {
-  const dbRef = ref(db);
-  get(child(dbRef, "/dsthisinh")).then((data) => {
-    tableThiSinh.appendChild(
-      addDataThiSinh(sbdthisinh.value, namethisinh.value, data.size)
-    );
-    set(ref(db, "dsthisinh/" + data.size), {
-      id: data.size,
-      sbd: sbdthisinh.value,
-      name: namethisinh.value,
-      display: true,
+async function GetNameBinhChon(idBinhChon) {
+  try {
+    const dataRef = ref(db, "/dsbinhchon");
+    const snapshot = await get(dataRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const foundBinhChon = Object.values(data).find((binhChon, index) => {
+        if (index === idBinhChon) {
+          return binhChon;
+        }
+      });
+
+      if (foundBinhChon) {
+        return foundBinhChon.name;
+      } else {
+        return "<Không xác định1>";
+      }
+    } else {
+      return "<Không xác định2>";
+    }
+  } catch (error) {
+    console.error("Lỗi khi lấy tên người bình chọn:", error);
+    return "<Lỗi khi truy xuất>";
+  }
+}
+
+async function GetDataVoted() {
+  const dataRef = ref(db, "/chitietvotes");
+  const snapshot = await get(dataRef);
+
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+    const resultArray = Object.keys(data).map((key) => {
+      return { ...data[key], thoigian: key };
     });
-  });
-});
+    return resultArray;
+  } else {
+    return resultArray;
+  }
+}
 
-function addDataThiSinh(id, name, index, sophieu) {
+async function renderDataVoted() {
+  try {
+    const getdataVoted = await GetDataVoted(); // Lấy dữ liệu voted
+
+    const promises = getdataVoted.map(async (value) => {
+      const tenThiSinh = await GetNameThiSinh(Number(value.idmiss));
+      const tenBinhChon = await GetNameBinhChon(Number(value.idbinhchon));
+      return {
+        thoigian: value.thoigian,
+        tenThiSinh: tenThiSinh,
+        tenBinhChon: tenBinhChon,
+      };
+    });
+
+    const results = (await Promise.all(promises)).reverse();
+
+    results.forEach((result) => {
+      dataVoted.appendChild(
+        addDataVoted(
+          result.thoigian,
+          `${result.tenBinhChon} đã bình chọn cho ${result.tenThiSinh}`
+        )
+      );
+    });
+  } catch (error) {
+    console.error("Lỗi khi xử lý dữ liệu voted:", error);
+    // Xử lý lỗi, ví dụ: hiển thị thông báo lỗi cho người dùng
+  }
+}
+
+// async function renderDataVoted() {
+//   const getdataVoted = await GetDataVoted();
+
+//   getdataVoted.map((value, index) => {
+//     console.log(value);
+//     dataVoted.appendChild(
+//       addDataVoted(value.thoigian, GetNameThiSinh(Number(value.idmiss)))
+//     );
+//   });
+
+// }
+
+function addDataVoted(thoigian, noidung) {
   const tRow = document.createElement("tr");
-  // <tr></tr>
+  const tThoiGian = document.createElement("td");
+  tThoiGian.textContent = formatTimestamp(Number(thoigian));
+  const tNoiDung = document.createElement("td");
+  tNoiDung.textContent = noidung;
 
-  const tData1 = document.createElement("td");
-  tData1.innerHTML = id;
-  // <td>SBD</td>
-
-  const tData2 = document.createElement("td");
-  tData2.innerHTML = name;
-  // <td>Tên Thí Sinh</td>
-
-  const tData3 = document.createElement("td");
-  tData3.innerHTML = sophieu;
-  // <td>Sô phiếu</td>
-
-  const tData4 = document.createElement("td");
-  const buttonEdit = document.createElement("button");
-  buttonEdit.classList.add("btn-action");
-  buttonEdit.classList.add("btn-edit-thisinh");
-  buttonEdit.innerHTML = renderEditSVG();
-  buttonEdit.setAttribute("index", index);
-  buttonEdit.setAttribute("action", "editthisinh");
-  tData4.appendChild(buttonEdit);
-
-  // const tData5 = document.createElement("td");
-  // const buttonDelete = document.createElement("button");
-  // buttonDelete.classList.add("btn-action");
-  // buttonDelete.classList.add("btn-delete");
-  // buttonDelete.innerHTML = renderDeleteSVG();
-  // buttonDelete.setAttribute("index", index);
-  // buttonDelete.setAttribute("action", "delete");
-  // tData5.appendChild(buttonDelete);
-
-  tRow.appendChild(tData1);
-  tRow.appendChild(tData2);
-  tRow.appendChild(tData3);
-  tRow.appendChild(tData4);
-
-  buttonEdit.addEventListener("click", ActionButtonThiSinh);
-  // buttonDelete.addEventListener("click", ActionButton);
+  tRow.appendChild(tThoiGian);
+  tRow.appendChild(tNoiDung);
 
   return tRow;
 }
 
-function ActionButtonThiSinh() {
-  // editBinhChon.setAttribute("index", this.getAttribute("index"));
-  // deleteBinhChon.setAttribute("index", this.getAttribute("index"));
-  // this.parentNode.parentNode.setAttribute("id", "here");
-  // const dbRef = ref(db);
-  // get(child(dbRef, "/dsbinhchon")).then((resposes) => {
-  //   resposes.forEach((respose) => {
-  //     if (respose.key == this.getAttribute("index")) {
-  //       editIDBinhChon.value = respose.val().id;
-  //       editNameBinhChon.value = respose.val().name;
-  //       toggleHideElement(formEditBinhChon);
-  //     }
-  //   });
-  // });
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
 }
 
-function LoadDataThiSinh() {
-  processDataThiSinh();
-}
+// <--------------------- Phân trang ---------------------->
+function paginateTable(table, rowsPerPage) {
+  const rows = Array.from(table.tBodies[0].rows).filter(
+    (row) => row.style.display !== "none"
+  );
+  const rowCount = rows.length;
+  const pageCount = Math.ceil(rowCount / rowsPerPage);
+  let currentPage = 1;
 
-// function renderDataThiSinh() {
-//   const dbRef = ref(db);
-//   get(child(dbRef, "/dsthisinh")).then((resposes) => {
-//     resposes.forEach((respose) => {
-//       if (respose.val().display == true) {
-//         dataThiSinh.appendChild(
-//           addDataThiSinh(respose.val().sbd, respose.val().name, respose.key)
-//         );
-//       }
-//     });
-//   });
-// }
+  function displayRows(page) {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
 
-// Data Fetching
-async function fetchThiSinh() {
-  const snapshot = await get(ref(db, "/dsthisinh"));
-  if (!snapshot.exists()) return [];
-  return Object.values(snapshot.val()).map((data) => ({ ...data, sophieu: 0 }));
-}
-
-async function fetchVotes() {
-  const snapshot = await get(ref(db, "/chitietvotes"));
-  return snapshot.exists() ? snapshot.val() : {};
-}
-
-// Vote Count and Ranking
-async function processDataThiSinh() {
-  try {
-    const [thiSinhList, voteData] = await Promise.all([
-      fetchThiSinh(),
-      fetchVotes(),
-    ]);
-
-    thiSinhList.forEach((ts) => {
-      Object.values(voteData).forEach((vote) => {
-        if (vote.idmiss == ts.id) ts.sophieu++;
-      });
+    rows.forEach((row, i) => {
+      row.style.display = i >= start && i < end ? "" : "none";
     });
-    thiSinhList.forEach((ts) => {
-      if (ts.display == true) {
-        dataThiSinh.appendChild(
-          addDataThiSinh(ts.sbd, ts.name, ts.id, ts.sophieu)
-        );
-      }
-    });
-  } catch (err) {
-    console.error("Lỗi xử lý dữ liệu:", err);
   }
+
+  function createPaginationButtons() {
+    const paginationDiv = document.getElementById("pagination");
+    paginationDiv.innerHTML = "";
+
+    function createButton(text, page) {
+      const button = document.createElement("button");
+      button.textContent = text;
+      if (page === currentPage) {
+        button.disabled = true;
+        button.style.fontWeight = "bold";
+        button.style.backgroundColor = "#007bff";
+        button.style.color = "white";
+      }
+      button.addEventListener("click", () => {
+        currentPage = page;
+        displayRows(currentPage);
+        createPaginationButtons();
+      });
+      paginationDiv.appendChild(button);
+    }
+
+    if (currentPage > 1) {
+      createButton("«", 1);
+      createButton("‹", currentPage - 1);
+    }
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(pageCount, currentPage + 2);
+
+    if (currentPage <= 2) {
+      endPage = Math.min(5, pageCount);
+    } else if (currentPage >= pageCount - 1) {
+      startPage = Math.max(1, pageCount - 4);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      createButton(i, i);
+    }
+
+    if (currentPage < pageCount) {
+      createButton("›", currentPage + 1);
+      createButton("»", pageCount);
+    }
+  }
+
+  displayRows(currentPage);
+  createPaginationButtons();
 }
 
-const tableThiSinh = document.getElementById("dataTableThiSinh");
-
-function SapXepTable(table) {
-  const headers = table.querySelectorAll("th");
-  let sortDirections = Array(headers.length).fill(true); // true = ASC, false = DESC
-
-  headers.forEach((header, index) => {
-    // Bỏ qua cột "Edit"
-    if (header.textContent.includes("Edit")) return;
-
-    header.style.cursor = "pointer";
-
-    header.addEventListener("click", () => {
-      const tbody = table.querySelector("tbody");
-      const rows = Array.from(tbody.querySelectorAll("tr"));
-      const isAsc = sortDirections[index];
-
-      // Reset biểu tượng trên tất cả tiêu đề
-      headers.forEach((h, i) => {
-        if (i !== index && !h.textContent.includes("Edit")) {
-          h.innerHTML = h.textContent.replace(/[\u25B2\u25BC]/g, "").trim();
-        }
-      });
-
-      // Sắp xếp
-      rows.sort((a, b) => {
-        const cellA = a.children[index].textContent.trim();
-        const cellB = b.children[index].textContent.trim();
-        const isNumber = !isNaN(cellA) && !isNaN(cellB);
-
-        if (isNumber) {
-          return isAsc ? cellA - cellB : cellB - cellA;
-        } else {
-          return isAsc
-            ? cellA.localeCompare(cellB)
-            : cellB.localeCompare(cellA);
-        }
-      });
-
-      // Gắn lại thứ tự dòng sau khi sắp xếp
-      rows.forEach((row) => tbody.appendChild(row));
-
-      // Cập nhật biểu tượng ▲▼
-      const arrow = isAsc ? " ▲" : " ▼";
-      header.innerHTML =
-        header.textContent.replace(/[\u25B2\u25BC]/g, "").trim() + arrow;
-
-      // Đảo chiều cho lần click sau
-      sortDirections[index] = !isAsc;
-    });
-  });
-}
 window.addEventListener("load", async () => {
-  await processDataThiSinh();
+  await renderDataVoted();
+  const dateFilter = document.getElementById("dateFilter");
 
-  SapXepTable(tableThiSinh);
+  function filterByDate() {
+    const selectedDate = dateFilter.value; // yyyy-MM-dd
+    const rows = tableVoted.tBodies[0].rows;
+
+    console.log(dateFilter);
+    console.log(dateFilter.value);
+
+    for (let row of rows) {
+      const timeText = row.cells[0].textContent;
+      const datePart = timeText.split(" ")[1]; // dd/MM/yyyy
+      const [day, month, year] = datePart.split("/");
+      const formatted = `${year}-${month}-${day}`;
+
+      // Nếu không chọn ngày, hiện tất cả
+      row.style.display =
+        !selectedDate || selectedDate === formatted ? "" : "none";
+    }
+
+    paginateTable(tableVoted, 10);
+  }
+
+  dateFilter.addEventListener("change", filterByDate);
+
+  // Gọi ban đầu để hiển thị tất cả
+  paginateTable(tableVoted, 10);
 });
