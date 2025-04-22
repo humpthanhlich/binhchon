@@ -33,9 +33,9 @@ const themThiSinh = document.getElementById("themThiSinh");
 const formAddThiSinh = document.querySelector(".formthisinh");
 const huyAddThiSinh = formAddThiSinh.querySelector(".btn-cancel");
 const sbdthisinh = document.getElementById("sbdthisinh");
+const dataThiSinh = document.querySelector("#dataTableThiSinh tbody");
 const namethisinh = document.getElementById("namethisinh");
 
-const tableThiSinh = document.getElementById("dataTableThiSinh");
 const btnThemThiSinh = formAddThiSinh.querySelector(".btn-add");
 formAddThiSinh.addEventListener("click", (e) => {
   if (e.target == e.currentTarget) toggleHideElement(formAddThiSinh);
@@ -81,8 +81,6 @@ inputUpLoad.addEventListener("change", (e) => {
   }
 });
 
-const dataThiSinh = document.getElementById("dataTableThiSinh");
-
 function renderEditSVG() {
   return `<svg
   xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +108,7 @@ btnThemThiSinh.addEventListener("click", () => {
   });
 });
 
-function addDataThiSinh(id, name, index) {
+function addDataThiSinh(id, name, index, sophieu) {
   const tRow = document.createElement("tr");
   // <tr></tr>
 
@@ -123,7 +121,7 @@ function addDataThiSinh(id, name, index) {
   // <td>Tên Thí Sinh</td>
 
   const tData3 = document.createElement("td");
-  tData3.innerHTML = 0;
+  tData3.innerHTML = sophieu;
   // <td>Sô phiếu</td>
 
   const tData4 = document.createElement("td");
@@ -172,20 +170,113 @@ function ActionButtonThiSinh() {
 }
 
 function LoadDataThiSinh() {
-  renderDataThiSinh();
+  processDataThiSinh();
 }
 
-function renderDataThiSinh() {
-  const dbRef = ref(db);
-  get(child(dbRef, "/dsthisinh")).then((resposes) => {
-    resposes.forEach((respose) => {
-      if (respose.val().display == true) {
+// function renderDataThiSinh() {
+//   const dbRef = ref(db);
+//   get(child(dbRef, "/dsthisinh")).then((resposes) => {
+//     resposes.forEach((respose) => {
+//       if (respose.val().display == true) {
+//         dataThiSinh.appendChild(
+//           addDataThiSinh(respose.val().sbd, respose.val().name, respose.key)
+//         );
+//       }
+//     });
+//   });
+// }
+
+// Data Fetching
+async function fetchThiSinh() {
+  const snapshot = await get(ref(db, "/dsthisinh"));
+  if (!snapshot.exists()) return [];
+  return Object.values(snapshot.val()).map((data) => ({ ...data, sophieu: 0 }));
+}
+
+async function fetchVotes() {
+  const snapshot = await get(ref(db, "/chitietvotes"));
+  return snapshot.exists() ? snapshot.val() : {};
+}
+
+// Vote Count and Ranking
+async function processDataThiSinh() {
+  try {
+    const [thiSinhList, voteData] = await Promise.all([
+      fetchThiSinh(),
+      fetchVotes(),
+    ]);
+
+    thiSinhList.forEach((ts) => {
+      Object.values(voteData).forEach((vote) => {
+        if (vote.idmiss == ts.id) ts.sophieu++;
+      });
+    });
+    thiSinhList.forEach((ts) => {
+      if (ts.display == true) {
         dataThiSinh.appendChild(
-          addDataThiSinh(respose.val().sbd, respose.val().name, respose.key)
+          addDataThiSinh(ts.sbd, ts.name, ts.id, ts.sophieu)
         );
       }
     });
-  });
+  } catch (err) {
+    console.error("Lỗi xử lý dữ liệu:", err);
+  }
 }
 
-window.addEventListener("load", LoadDataThiSinh);
+const tableThiSinh = document.getElementById("dataTableThiSinh");
+
+function SapXepTable(table) {
+  const headers = table.querySelectorAll("th");
+  let sortDirections = Array(headers.length).fill(true); // true = ASC, false = DESC
+
+  headers.forEach((header, index) => {
+    // Bỏ qua cột "Edit"
+    if (header.textContent.includes("Edit")) return;
+
+    header.style.cursor = "pointer";
+
+    header.addEventListener("click", () => {
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      const isAsc = sortDirections[index];
+
+      // Reset biểu tượng trên tất cả tiêu đề
+      headers.forEach((h, i) => {
+        if (i !== index && !h.textContent.includes("Edit")) {
+          h.innerHTML = h.textContent.replace(/[\u25B2\u25BC]/g, "").trim();
+        }
+      });
+
+      // Sắp xếp
+      rows.sort((a, b) => {
+        const cellA = a.children[index].textContent.trim();
+        const cellB = b.children[index].textContent.trim();
+        const isNumber = !isNaN(cellA) && !isNaN(cellB);
+
+        if (isNumber) {
+          return isAsc ? cellA - cellB : cellB - cellA;
+        } else {
+          return isAsc
+            ? cellA.localeCompare(cellB)
+            : cellB.localeCompare(cellA);
+        }
+      });
+
+      // Gắn lại thứ tự dòng sau khi sắp xếp
+      rows.forEach((row) => tbody.appendChild(row));
+
+      // Cập nhật biểu tượng ▲▼
+      const arrow = isAsc ? " ▲" : " ▼";
+      header.innerHTML =
+        header.textContent.replace(/[\u25B2\u25BC]/g, "").trim() + arrow;
+
+      // Đảo chiều cho lần click sau
+      sortDirections[index] = !isAsc;
+    });
+  });
+}
+window.addEventListener("load", async () => {
+  await processDataThiSinh();
+
+  SapXepTable(tableThiSinh);
+});
